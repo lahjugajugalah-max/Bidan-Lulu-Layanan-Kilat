@@ -247,27 +247,3 @@
     </script>
 </body>
 </html>
-        function updateManual(aksi) {
-            if(aksi === 'tambah') currentNo++;
-            else if(aksi === 'kurang' && currentNo > 1) currentNo--;
-            document.getElementById('view-nomor').innerText = currentNo.toString().padStart(2, '0');
-            document.getElementById('view-next').innerText = (currentNo + 1).toString().padStart(2, '0');
-        }
-
-        function simpanPerubahan() {
-            const namaBaru = document.getElementById('input-nama').value;
-            if (namaBaru.trim() !== "") {
-                document.getElementById('view-nama').innerText = namaBaru;
-                alert("Data berhasil diperbarui!");
-            } else {
-                alert("Masukkan nama pasien terlebih dahulu.");
-            }
-        }
-    </script>
-
-
-
-
-</body>
-  </html>
-  
