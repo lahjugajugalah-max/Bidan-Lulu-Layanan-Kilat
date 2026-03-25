@@ -53,12 +53,11 @@
 
     <header>
         <div class="menu-icon" onclick="toggleNav()">⋮</div>
-        <div class="logo">ASHILA GUNDUT BANET</div>
+        <div class="logo">KLINIK BIDAN LULU</div>
         <div class="header-spacer"></div>
     </header>
 
     <div id="side-nav">
-        <div class="nav-item" onclick="window.initSuara()">🔊 AKTIFKAN SUARA</div>
         <div class="nav-item" onclick="window.masukAdmin()">🔐 PANEL ADMIN</div>
     </div>
 
@@ -83,7 +82,6 @@
             <h2 style="margin:0;">ADMIN PANEL</h2>
             <button onclick="window.keluarAdmin()" style="background:none; border:none; color:var(--danger); font-weight:900; font-size: 18px;">TUTUP</button>
         </div>
-
         <div class="admin-card">
             <label>STATUS KLINIK</label>
             <select id="set-status-klinik">
@@ -92,20 +90,13 @@
             </select>
             <button class="btn" style="background:var(--primary); color:#fff; padding:12px; font-size:14px;" onclick="window.simpanStatus()">UPDATE STATUS</button>
         </div>
-
         <button class="btn" style="background:var(--success); color:#fff; font-size:24px; margin-bottom:25px; height:90px;" onclick="window.panggilBerikutnya()">PANGGIL PASIEN</button>
-
-        <div class="admin-card">
-            <label>DAFTAR ANTRIAN</label>
-            <div id="admin-list-tunggu" style="margin-top:10px;"></div>
-        </div>
-
+        <div class="admin-card"><label>DAFTAR ANTRIAN</label><div id="admin-list-tunggu" style="margin-top:10px;"></div></div>
         <div class="admin-card">
             <label>PENGUMUMAN</label>
             <textarea id="edit-info" rows="2" style="width:100%; background:#000; color:#fff; border:1px solid #333; border-radius:15px; padding:15px; font-family:inherit; font-weight:600;"></textarea>
             <button class="btn" style="background:var(--primary); color:#fff; padding:12px; margin-top:10px; font-size:14px;" onclick="window.simpanInfo()">SIMPAN INFO</button>
         </div>
-
         <button onclick="window.resetTotal()" style="width:100%; background:transparent; border:1px solid #333; color:#555; padding:10px; border-radius:10px; font-weight:800; margin-top:50px;">RESET DATABASE</button>
     </div>
 
@@ -132,21 +123,25 @@
         };
 
         let canSpeak = false;
-        window.initSuara = () => {
+        window.aktifkanSuaraSaku = () => {
             canSpeak = true;
-            panggilSuara("", "Suara Aktif");
-            toggleNav();
+            // Test suara singkat saat di klik
+            const u = new SpeechSynthesisUtterance("Suara Aktif");
+            u.lang = 'id-ID'; window.speechSynthesis.speak(u);
+            renderForm(); // Update tombol agar hilang setelah aktif
         };
 
         const panggilSuara = (nomor, nama) => {
-            if(!canSpeak) return;
+            const myNum = localStorage.getItem('myNum');
+            const isAdm = localStorage.getItem('role') === 'admin';
+            
+            // JANGAN BUNYI JIKA: Belum klik aktifkan, atau ini Admin, atau nomor tidak cocok
+            if(!canSpeak || isAdm || nomor != myNum) return; 
+
             window.speechSynthesis.cancel();
-            const voices = window.speechSynthesis.getVoices();
-            const idVoice = voices.find(v => v.lang.includes('id'));
-            const msg = nomor === "" ? nama : `Nomor antrian... ${nomor}... Atas nama... ${nama}... Silakan masuk.`;
-            for(let i=0; i < (nomor === "" ? 1 : 3); i++) {
+            const msg = `Panggilan... nomor antrian... ${nomor}... Atas nama... ${nama}... Silakan masuk.`;
+            for(let i=0; i < 3; i++) {
                 let u = new SpeechSynthesisUtterance(msg);
-                if(idVoice) u.voice = idVoice;
                 u.lang = 'id-ID'; u.rate = 0.85; window.speechSynthesis.speak(u);
             }
         };
@@ -155,26 +150,31 @@
             toggleNav();
             if(prompt("PIN:") === "1803") {
                 document.getElementById('admin-screen').style.display = "block";
-                localStorage.setItem('user', 'admin');
+                localStorage.setItem('role', 'admin');
             }
         };
 
-        window.keluarAdmin = () => { document.getElementById('admin-screen').style.display = "none"; localStorage.removeItem('user'); };
+        window.keluarAdmin = () => { 
+            document.getElementById('admin-screen').style.display = "none"; 
+            localStorage.removeItem('role'); 
+        };
 
         window.simpanStatus = () => { set(ref(db, 'config/status'), document.getElementById('set-status-klinik').value); };
         window.simpanInfo = () => { set(ref(db, 'config/info'), document.getElementById('edit-info').value); };
-
         window.panggilBerikutnya = () => {
             get(ref(db, 'queue')).then((s) => {
                 if(!s.exists()) return alert("Kosong!");
                 const data = s.val(); const key = Object.keys(data)[0]; const next = data[key];
                 next.time = Date.now();
                 set(ref(db, 'active'), next).then(() => remove(ref(db, 'queue/' + key)));
-                panggilSuara(next.nomor, next.nama);
             });
         };
 
-        window.resetTotal = () => { if(confirm("Hapus?")) { remove(ref(db)); localStorage.clear(); location.reload(); } };
+        window.resetTotal = () => { 
+            if(confirm("Reset?")) { 
+                remove(ref(db)).then(() => { localStorage.removeItem('myNum'); localStorage.removeItem('myName'); location.reload(); });
+            } 
+        };
 
         window.daftarAntrian = () => {
             const nama = document.getElementById('nama-input').value;
@@ -183,7 +183,8 @@
                 const num = (s.val() || 0) + 1;
                 push(ref(db, 'queue'), { nama, nomor: num, time: serverTimestamp() }).then(() => {
                     set(ref(db, 'total'), num);
-                    localStorage.setItem('myNum', num); localStorage.setItem('myName', nama);
+                    localStorage.setItem('myNum', num); 
+                    localStorage.setItem('myName', nama);
                     renderForm();
                 });
             });
@@ -193,6 +194,7 @@
             const area = document.getElementById('pendaftaran-area');
             const myNum = localStorage.getItem('myNum');
             const myName = localStorage.getItem('myName');
+            
             get(ref(db, 'config/status')).then((s) => {
                 const status = s.val() || "BUKA";
                 if(status === "TUTUP") {
@@ -202,6 +204,7 @@
                         <div style="font-weight:800; color:var(--primary);">${myName}</div>
                         <div style="font-size:70px; font-weight:800; color:var(--primary);">${myNum.toString().padStart(2, '0')}</div>
                         <div style="font-weight:800; color:#555;">NOMOR SAYA</div>
+                        ${!canSpeak ? `<button class="btn" style="background:var(--danger); color:#fff; margin-top:15px; padding:10px; font-size:12px;" onclick="window.aktifkanSuaraSaku()">🔊 AKTIFKAN SUARA PANGGILAN</button>` : `<div style="color:var(--success); font-weight:800; font-size:12px; margin-top:10px;">✓ SUARA AKTIF</div>`}
                     </div>`;
                 } else {
                     area.innerHTML = `<div class="card"><label>NAMA PASIEN</label><input type="text" id="nama-input" placeholder="Tulis nama..."><button class="btn btn-primary" onclick="window.daftarAntrian()">AMBIL ANTRIAN</button></div>`;
@@ -209,6 +212,7 @@
             });
         }
 
+        onValue(ref(db, 'total'), (s) => { if (!s.exists() && localStorage.getItem('myNum')) { localStorage.removeItem('myNum'); localStorage.removeItem('myName'); renderForm(); } });
         onValue(ref(db, 'config/status'), (s) => {
             const status = s.val() || "BUKA";
             const badge = document.getElementById('badge-status');
@@ -218,31 +222,20 @@
             if(status === "TUTUP") card.classList.add('closed'); else card.classList.remove('closed');
             renderForm();
         });
-
-        onValue(ref(db, 'config/info'), (s) => { document.getElementById('info-teks').innerText = s.val() || "-"; document.getElementById('edit-info').value = s.val() || ""; });
-
+        onValue(ref(db, 'config/info'), (s) => { document.getElementById('info-teks').innerText = s.val() || "-"; });
         let lastID = 0;
         onValue(ref(db, 'active'), (s) => {
             const d = s.val();
             if(d) {
                 document.getElementById('nomor-live').innerText = d.nomor.toString().padStart(2, '0');
                 document.getElementById('nama-live').innerText = d.nama;
-                if(d.time !== lastID) {
-                    if(d.nomor == localStorage.getItem('myNum') || localStorage.getItem('user') === 'admin') panggilSuara(d.nomor, d.nama);
-                    lastID = d.time;
-                }
+                if(d.time !== lastID) { panggilSuara(d.nomor, d.nama); lastID = d.time; }
             }
         });
-
         onValue(ref(db, 'queue'), (s) => {
-            const list = document.getElementById('admin-list-tunggu');
-            list.innerHTML = "";
-            if(s.exists()) s.forEach((c) => { 
-                const p = c.val();
-                list.innerHTML += `<div class="list-item"><span class="list-num">${p.nomor.toString().padStart(2, '0')}</span><span class="list-name">${p.nama}</span></div>`;
-            }); else list.innerHTML = "<div style='text-align:center; padding:20px; color:#555;'>KOSONG</div>";
+            const list = document.getElementById('admin-list-tunggu'); list.innerHTML = "";
+            if(s.exists()) s.forEach((c) => { const p = c.val(); list.innerHTML += `<div class="list-item"><span class="list-num">${p.nomor.toString().padStart(2, '0')}</span><span class="list-name">${p.nama}</span></div>`; });
         });
-
         renderForm();
     </script>
 </body>
