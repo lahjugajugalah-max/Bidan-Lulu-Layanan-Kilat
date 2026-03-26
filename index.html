@@ -10,40 +10,50 @@
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: linear-gradient(135deg, #74b9ff 0%, #a29bfe 100%); margin: 0; padding: 20px; min-height: 100vh; display: flex; justify-content: center; align-items: center; }
         
-        .card { background: rgba(255, 255, 255, 0.98); border-radius: 40px; padding: 35px; width: 100%; max-width: 420px; box-shadow: 0 30px 60px rgba(0,0,0,0.15); text-align: center; border: 2px solid #fff; }
-        .logo { font-weight: 800; font-size: 22px; color: var(--primary); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .card { background: rgba(255, 255, 255, 0.98); border-radius: 40px; padding: 30px; width: 100%; max-width: 420px; box-shadow: 0 30px 60px rgba(0,0,0,0.15); text-align: center; border: 2px solid #fff; position: relative; }
         
-        /* NOMOR LIVE HD */
-        .nomor-waits { font-size: 110px; font-weight: 900; color: var(--primary); line-height: 1; margin: 15px 0; text-shadow: 4px 4px 0px rgba(116, 185, 255, 0.2); }
+        /* JAM DIGITAL HD */
+        .jam-digital { font-weight: 800; color: var(--primary); font-size: 18px; margin-bottom: 10px; background: #e1f5fe; display: inline-block; padding: 5px 15px; border-radius: 15px; }
         
-        .input-group { text-align: left; margin-top: 25px; }
-        label { font-size: 12px; font-weight: 800; color: var(--primary); margin-left: 10px; display: block; margin-bottom: 8px; }
+        .logo { font-weight: 800; font-size: 22px; color: var(--primary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
         
-        /* KOTAK OPSI BIRU KHAS (HD & BOLD) */
+        .nomor-waits { font-size: 100px; font-weight: 900; color: var(--primary); line-height: 1; margin: 10px 0; text-shadow: 4px 4px 0px rgba(116, 185, 255, 0.2); }
+        
+        /* PAPAN INFORMASI */
+        .info-box { background: #0984e3; color: white; padding: 10px; border-radius: 15px; font-size: 12px; font-weight: 700; margin-top: 15px; text-transform: uppercase; }
+
+        .input-group { text-align: left; margin-top: 20px; }
+        label { font-size: 11px; font-weight: 800; color: var(--primary); margin-left: 10px; display: block; margin-bottom: 5px; }
+        
+        /* KOTAK OPSI BIRU KHAS */
         select, input { 
-            width: 100%; padding: 20px; border-radius: 25px; border: 3px solid #74b9ff; 
-            background: #e1f5fe; color: #0984e3; font-weight: 800; font-size: 16px; 
-            outline: none; transition: 0.4s; appearance: none;
+            width: 100%; padding: 18px; border-radius: 20px; border: 3px solid #74b9ff; 
+            background: #e1f5fe; color: #0984e3; font-weight: 800; font-size: 15px; 
+            outline: none; transition: 0.4s;
         }
-        select:focus, input:focus { border-color: #00cec9; background: #fff; transform: scale(1.02); }
+        select:focus, input:focus { border-color: #00cec9; background: #fff; }
         
         .btn-daftar { 
-            width: 100%; padding: 22px; border: none; border-radius: 25px; 
+            width: 100%; padding: 20px; border: none; border-radius: 25px; 
             background: linear-gradient(45deg, #0984e3, #6c5ce7); 
-            color: #fff; font-weight: 800; font-size: 18px; margin-top: 30px; 
-            cursor: pointer; box-shadow: 0 15px 30px rgba(9, 132, 227, 0.4); 
+            color: #fff; font-weight: 800; font-size: 17px; margin-top: 20px; 
+            cursor: pointer; box-shadow: 0 10px 25px rgba(9, 132, 227, 0.3); 
         }
     </style>
 </head>
 <body>
     <div class="card">
+        <div class="jam-digital" id="clock">00:00:00</div>
+        
         <div class="logo">KLINIK BIDAN LULU</div>
-        <div style="font-size: 11px; color: #888; font-weight: 800;">SEKARANG DILAYANI:</div>
+        <div style="font-size: 11px; color: #888; font-weight: 800;">SEDANG DIPANGGIL:</div>
         <div class="nomor-waits" id="nomor-live">00</div>
-        <div id="nama-live" style="font-weight: 800; font-size: 20px; color: #2d3436;">...</div>
+        <div id="nama-live" style="font-weight: 800; font-size: 18px; color: #2d3436; text-transform: uppercase;">...</div>
+
+        <div class="info-box">Silahkan Isi Form Pendaftaran</div>
 
         <div class="input-group">
-            <label>PILIH JENIS LAYANAN</label>
+            <label>JENIS LAYANAN</label>
             <select id="layanan-input">
                 <option value="🤰 ANC">🤰 ANC (CEK HAMIL)</option>
                 <option value="💉 IMUNISASI">💉 IMUNISASI</option>
@@ -53,10 +63,10 @@
             </select>
         </div>
         <div class="input-group">
-            <label>NAMA LENGKAP</label>
-            <input type="text" id="nama-input" placeholder="Tulis nama di sini...">
+            <label>NAMA LENGKAP PASIEN</label>
+            <input type="text" id="nama-input" placeholder="Masukkan nama...">
         </div>
-        <button class="btn-daftar" onclick="daftarAntrian()">DAFTAR SEKARANG</button>
+        <button class="btn-daftar" onclick="daftarAntrian()">AMBIL NOMOR ANTREAN</button>
     </div>
 
     <script type="module">
@@ -67,17 +77,28 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // FUNGSI JAM DIGITAL
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('clock').innerText = `${h}:${m}:${s}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
         window.daftarAntrian = async () => {
             const nama = document.getElementById('nama-input').value.toUpperCase().trim();
             const layanan = document.getElementById('layanan-input').value;
-            if(!nama) return alert("Masukan Nama Dulu Ri!");
+            if(!nama) return alert("Ri, Nama jangan dikosongin ya!");
 
             const result = await runTransaction(ref(db, 'total'), (c) => (c || 0) + 1);
             if(result.committed) {
                 const num = result.snapshot.val();
-                const uniqueID = Date.now(); // Perbaikan Nomor 7 (ID Unik)
+                const uniqueID = Date.now();
                 await set(ref(db, `queue/${uniqueID}`), { nama, nomor: num, layanan, time: serverTimestamp() });
-                alert("Nomor Antrean Anda: " + num);
+                alert("Berhasil! Nomor Antrean Kamu: " + num);
                 document.getElementById('nama-input').value = "";
             }
         };
