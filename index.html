@@ -3,220 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KLINIK BIDAN LULU- V5 PRO MAX</title>
+    <title>ANTREAN PASIEN - KLINIK BIDAN LULU</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --primary: #00a8ff; --secondary: #9c88ff;
-            --danger: #ff4757; --success: #2ed573; --dark: #1e272e;
-            --glass: rgba(255, 255, 255, 0.9);
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
-            margin: 0; padding-bottom: 50px; min-height: 100vh; color: var(--dark);
-        }
+        :root { --primary: #00a8ff; --secondary: #9c88ff; --danger: #ff4757; --success: #2ed573; --dark: #1e272e; --glass: rgba(255, 255, 255, 0.9); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); margin: 0; padding-bottom: 50px; min-height: 100vh; color: var(--dark); }
         body.closed-mood { background: linear-gradient(135deg, #2c3e50 0%, #000000 100%); color: #fff; }
-
-        header { 
-            background: var(--glass); backdrop-filter: blur(20px);
-            padding: 0 25px; display: flex; align-items: center; justify-content: space-between; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: sticky; top:0; z-index: 1000; height: 80px;
-        }
-
-        .logo-area { text-align: center; flex-grow: 1; }
-        .logo { font-weight: 800; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1.5px; }
-        #live-clock { font-size: 12px; font-weight: 700; color: #888; }
-
-        .menu-container { position: relative; }
-        #side-nav { 
-            display: none; position: absolute; top: 50px; left: 0; 
-            background: #fff; box-shadow: 0 15px 35px rgba(0,0,0,0.2); 
-            border-radius: 20px; width: 180px; z-index: 1100; overflow: hidden;
-            border: 1px solid #eee;
-        }
-        .nav-item { 
-            padding: 15px 20px; font-size: 13px; font-weight: 700; cursor: pointer; 
-            display: flex; align-items: center; gap: 12px; color: var(--dark);
-        }
-        .nav-item:active { background: #f0f0f0; }
-        .nav-item:first-child { border-bottom: 1px solid #f5f5f5; }
-
+        header { background: var(--glass); backdrop-filter: blur(20px); padding: 0 25px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: sticky; top:0; z-index: 1000; height: 80px; }
+        .logo { font-weight: 800; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1.5px; }
         .container { padding: 25px 20px; max-width: 480px; margin: 0 auto; }
-        
-        .card { 
-            background: var(--glass); backdrop-filter: blur(15px); border-radius: 40px; padding: 30px; 
-            box-shadow: 0 25px 50px rgba(0,0,0,0.1); margin-bottom: 25px; text-align: center; 
-            border: 1px solid rgba(255,255,255,0.7);
-        }
-
+        .card { background: var(--glass); backdrop-filter: blur(15px); border-radius: 40px; padding: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.1); margin-bottom: 25px; text-align: center; border: 1px solid rgba(255,255,255,0.7); }
         .status-tag { padding: 8px 20px; border-radius: 50px; font-size: 11px; font-weight: 800; color: #fff; display: inline-block; margin-bottom: 15px; text-transform: uppercase; }
-        .tag-open { background: var(--success); box-shadow: 0 5px 15px rgba(46, 213, 115, 0.4); }
-        .tag-closed { background: var(--danger); box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4); }
-
+        .tag-open { background: var(--success); }
+        .tag-closed { background: var(--danger); }
         .nomor-live-box { background: rgba(255,255,255,0.5); border-radius: 35px; padding: 25px; margin: 15px 0; border: 1px solid #fff; }
         .nomor-waits { font-size: 110px; font-weight: 900; background: linear-gradient(to bottom, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 0.9; }
-
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
         .stat-item { background: rgba(0,0,0,0.03); padding: 15px; border-radius: 25px; }
         .stat-val { display: block; font-weight: 800; color: var(--primary); font-size: 18px; }
-
         .btn { width: 100%; padding: 20px; border: none; border-radius: 25px; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
-        .btn-primary { background: linear-gradient(45deg, var(--primary), var(--secondary)); color: #fff; box-shadow: 0 10px 25px rgba(0,168,255,0.3); }
-        
-        .wa-btn { background: #25d366; color: #fff; text-decoration: none; padding: 15px; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; font-weight: 800; margin-top: 15px; width: 100%; box-shadow: 0 10px 20px rgba(37, 211, 102, 0.2); }
-
-        #admin-screen { display: none; position: fixed; top:0; left:0; width: 100%; height: 100%; background: #0b0e11; color: #fff; z-index: 9999; padding: 25px; overflow-y: auto; }
-        .admin-card { background: #1c1f23; padding: 20px; border-radius: 25px; margin-bottom: 20px; border: 1px solid #333; }
-        
+        .btn-primary { background: linear-gradient(45deg, var(--primary), var(--secondary)); color: #fff; }
+        .wa-btn { background: #25d366; color: #fff; text-decoration: none; padding: 15px; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; font-weight: 800; margin-top: 15px; width: 100%; }
         .pulse { animation: pulse-shadow 2s infinite; }
         @keyframes pulse-shadow { 0% { box-shadow: 0 0 0 0px rgba(0, 168, 255, 0.4); } 100% { box-shadow: 0 0 0 20px rgba(0, 168, 255, 0); } }
     </style>
 </head>
 <body id="main-body">
-
     <audio id="dingdong" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
-
-    <header>
-        <div class="menu-container">
-            <div style="font-size:32px; cursor:pointer; color:var(--primary);" onclick="toggleNav()">⋮</div>
-            <div id="side-nav">
-                <div class="nav-item" onclick="window.masukAdmin()">⚙️ seting </div>
-                <div class="nav-item" onclick="location.reload()">🔄 refresh </div>
-            </div>
-        </div>
-        <div class="logo-area">
-            <div class="logo">KLINIK Bidan Lulu</div>
-            <div id="live-clock">00:00:00</div>
-        </div>
-        <div style="width:40px"></div>
-    </header>
-
+    <header><div class="logo">KLINIK Bidan Lulu</div></header>
     <div class="container">
         <div class="card">
             <div id="badge-status" class="status-tag">MEMUAT...</div>
             <div style="font-size: 11px; color: #999; font-weight: 800;">DILAYANI SEKARANG</div>
             <div class="nomor-live-box">
                 <div class="nomor-waits" id="nomor-live">00</div>
-                <div class="nama-waits" id="nama-live" style="font-size: 24px; font-weight: 800; text-transform: uppercase;">...</div>
+                <div id="nama-live" style="font-size: 24px; font-weight: 800; text-transform: uppercase;">...</div>
             </div>
             <div class="stats-grid">
-                <div class="stat-item"><span class="stat-val" id="count-waiting">0</span><span style="font-size: 10px; font-weight: 700;">Antrean</span></div>
-                <div class="stat-item"><span class="stat-val" id="eta-wait">0</span><span style="font-size: 10px; font-weight: 700;">Menit</span></div>
+                <div class="stat-item"><span class="stat-val" id="count-waiting">0</span><span style="font-size: 10px;">Antrean</span></div>
+                <div class="stat-item"><span class="stat-val" id="eta-wait">0</span><span style="font-size: 10px;">Menit</span></div>
             </div>
         </div>
-
         <div id="pendaftaran-area"></div>
-
         <div class="card" style="text-align: left; background: rgba(255,255,255,0.8);">
             <div style="font-size: 11px; font-weight: 800; color: var(--primary); margin-bottom: 5px;">📢 INFO KLINIK</div>
-            <div id="info-teks" style="font-weight: 700;">Memuat informasi terbaru...</div>
+            <div id="info-teks" style="font-weight: 700;">Memuat...</div>
         </div>
-    </div>
-
-    <div id="admin-screen">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:25px;">
-            <h2 style="margin:0;">ADMIN VIP</h2>
-            <button onclick="window.keluarAdmin()" style="background:var(--danger); border:none; color:#fff; padding:10px 20px; border-radius:15px; font-weight:800;">TUTUP</button>
-        </div>
-
-        <div class="admin-card">
-            <label style="font-size: 10px; color: #888;">PAPAN INFORMASI (INFO KLINIK)</label>
-            <input type="text" id="input-info-klinik" placeholder="Ketik info baru di sini..." style="width:100%; padding:15px; border-radius:15px; background:#333; color:#fff; border:none; margin-top:10px; font-weight:700;">
-            <button class="btn" style="background:var(--secondary); color:#fff; height:45px; font-size:12px; margin-top:10px;" onclick="window.simpanInfo()">SIMPAN INFO</button>
-        </div>
-
-        <div class="admin-card">
-            <label style="font-size: 10px; color: #888;">OPERASIONAL</label>
-            <select id="set-status-klinik" style="width:100%; padding:15px; border-radius:15px; background:#333; color:#fff; border:none; margin-top:10px; font-weight:700;">
-                <option value="BUKA">🟢 BUKA</option>
-                <option value="TUTUP">🔴 TUTUP</option>
-            </select>
-            <button class="btn" style="background:var(--primary); color:#fff; height:45px; font-size:12px; margin-top:10px;" onclick="window.simpanStatus()">UPDATE STATUS</button>
-        </div>
-
-        <button class="btn pulse" style="background:var(--success); color:#fff; font-size:22px; height:100px; margin-bottom:25px;" onclick="window.panggilBerikutnya()">PANGGIL 🔊</button>
-        
-        <div class="admin-card">
-            <label style="font-size: 10px; color: #888;">MENUNGGU</label>
-            <div id="admin-list-tunggu" style="margin-top:15px;"></div>
-        </div>
-        
-        <div class="admin-card">
-            <label style="font-size: 10px; color: #888;">RIWAYAT</label>
-            <div id="admin-history" style="margin-top:15px; font-size: 12px; opacity: 0.6;"></div>
-        </div>
-        
-        <button onclick="window.resetTotal()" style="width:100%; background:transparent; border:none; color:#444; text-decoration:underline; padding:20px;">RESET DATABASE</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, push, remove, serverTimestamp, get, runTransaction } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCRGwnp5R1qLXGRW4B0LMB_ko5c8O2DNDU",
-            authDomain: "klinik-ace97.firebaseapp.com",
-            databaseURL: "https://klinik-ace97-default-rtdb.firebaseio.com",
-            projectId: "klinik-ace97",
-            storageBucket: "klinik-ace97.firebasestorage.app",
-            messagingSenderId: "758250150131",
-            appId: "1:758250150131:web:b00a0f4bd7e9dde4797f86"
-        };
-
+        const firebaseConfig = { apiKey: "AIzaSyCRGwnp5R1qLXGRW4B0LMB_ko5c8O2DNDU", authDomain: "klinik-ace97.firebaseapp.com", databaseURL: "https://klinik-ace97-default-rtdb.firebaseio.com", projectId: "klinik-ace97", storageBucket: "klinik-ace97.firebasestorage.app", messagingSenderId: "758250150131", appId: "1:758250150131:web:b00a0f4bd7e9dde4797f86" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        const nomorWA_Klinik = "628123456789"; 
-
         let canSpeak = false;
-        window.aktifkanSuaraSaku = () => {
-            canSpeak = true;
-            window.speechSynthesis.speak(new SpeechSynthesisUtterance("Suara aktif"));
-            renderForm();
-        };
+        window.aktifkanSuaraSaku = () => { canSpeak = true; window.speechSynthesis.speak(new SpeechSynthesisUtterance("Suara aktif")); renderForm(); };
 
         const panggilPasien = (nomor, nama) => {
-            const myNum = localStorage.getItem('myNum');
-            if(!canSpeak || localStorage.getItem('role') === 'admin' || nomor != myNum) return;
+            if(!canSpeak || nomor != localStorage.getItem('myNum')) return;
             document.getElementById('dingdong').play();
             setTimeout(() => {
-                window.speechSynthesis.cancel();
                 const u = new SpeechSynthesisUtterance(`Nomor ${nomor}. ${nama}. Silakan masuk.`);
-                u.lang = 'id-ID'; u.rate = 0.8;
-                window.speechSynthesis.speak(u);
+                u.lang = 'id-ID'; window.speechSynthesis.speak(u);
             }, 1800);
-        };
-
-        setInterval(() => { document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('id-ID'); }, 1000);
-        
-        window.toggleNav = () => { 
-            const s = document.getElementById('side-nav'); 
-            s.style.display = (s.style.display === 'block') ? 'none' : 'block'; 
-        };
-
-        window.onclick = function(event) {
-            if (!event.target.matches('[onclick="toggleNav()"]')) {
-                document.getElementById('side-nav').style.display = 'none';
-            }
-        }
-        
-        window.masukAdmin = () => {
-            if(prompt("PIN ADMIN:") === "1803") { 
-                document.getElementById('admin-screen').style.display = "block"; 
-                localStorage.setItem('role', 'admin');
-            }
-        };
-        window.keluarAdmin = () => { document.getElementById('admin-screen').style.display = "none"; localStorage.removeItem('role'); };
-
-        window.simpanStatus = () => set(ref(db, 'config/status'), document.getElementById('set-status-klinik').value);
-        
-        window.simpanInfo = () => {
-            const infoBaru = document.getElementById('input-info-klinik').value;
-            if(infoBaru) set(ref(db, 'config/info'), infoBaru).then(() => alert("Info Diperbarui!"));
         };
 
         window.daftarAntrian = async () => {
@@ -231,18 +84,6 @@
             }
         };
 
-        window.panggilBerikutnya = () => {
-            get(ref(db, 'queue')).then((s) => {
-                if(!s.exists()) return alert("Habis!");
-                const data = s.val(); const key = Object.keys(data)[0]; const next = data[key];
-                next.time = Date.now();
-                push(ref(db, 'history'), next);
-                set(ref(db, 'active'), next).then(() => remove(ref(db, 'queue/' + key)));
-            });
-        };
-
-        window.resetTotal = () => { if(confirm("Reset data?")) remove(ref(db)).then(() => { localStorage.clear(); location.reload(); }); };
-
         function renderForm() {
             const area = document.getElementById('pendaftaran-area');
             const myNum = localStorage.getItem('myNum');
@@ -250,18 +91,15 @@
             get(ref(db, 'config/status')).then((s) => {
                 const status = s.val() || "BUKA";
                 if(status === "TUTUP") {
-                    // INI YANG DIUBAH JADI MERAH
                     area.innerHTML = `<div class="card" style="background:var(--danger); border:none; color:#fff;"><h2 style="margin:0;">TUTUP</h2></div>`;
                     document.getElementById('main-body').classList.add('closed-mood');
                 } else {
                     document.getElementById('main-body').classList.remove('closed-mood');
                     if(myNum) {
-                        const teksWA = `Halo Bidan Lulu, saya *${myName}*.\nNo Antrean: *${myNum.toString().padStart(2, '0')}*`.replace(/\n/g, '%0a');
                         area.innerHTML = `<div class="card pulse" style="border:3px solid var(--primary); background:#fff;">
                             <div style="font-weight:800; color:var(--primary);">${myName}</div>
                             <div class="nomor-waits">${myNum.toString().padStart(2, '0')}</div>
-                            <a href="https://wa.me/${nomorWA_Klinik}?text=${teksWA}" target="_blank" class="wa-btn">💬 KE WHATSAPP</a><br>
-                            ${!canSpeak ? `<button class="btn" style="background:var(--danger); color:#fff; margin-top:15px; font-size:12px; padding:10px;" onclick="window.aktifkanSuaraSaku()">🔊 AKTIFKAN SUARA</button>` : `<div style="color:var(--success); font-weight:800; font-size:12px; margin-top:10px;">✓ SUARA AKTIF</div>`}
+                            ${!canSpeak ? `<button class="btn" style="background:var(--danger); color:#fff; margin-top:15px;" onclick="window.aktifkanSuaraSaku()">🔊 AKTIFKAN SUARA</button>` : `<div style="color:var(--success); font-weight:800; margin-top:10px;">✓ SUARA AKTIF</div>`}
                         </div>`;
                     } else {
                         area.innerHTML = `<div class="card" style="text-align:left;"><label style="font-weight:800; font-size:11px; color:var(--primary);">NAMA PASIEN</label><input type="text" id="nama-input" placeholder="Nama..." style="width:100%; padding:20px; border-radius:20px; border:2px solid #eee; margin-top:10px; font-weight:700;"><button class="btn btn-primary" style="margin-top:15px;" onclick="window.daftarAntrian()">AMBIL ANTREAN</button></div>`;
@@ -273,18 +111,12 @@
         onValue(ref(db, 'config/status'), (s) => {
             const st = s.val() || "BUKA";
             const b = document.getElementById('badge-status');
-            b.innerText = (st === "TUTUP") ? "TUTUP" : "BUKA";
-            b.className = (st === "TUTUP") ? "status-tag tag-closed" : "status-tag tag-open";
+            b.innerText = st; b.className = (st === "TUTUP") ? "status-tag tag-closed" : "status-tag tag-open";
             renderForm();
         });
 
-        onValue(ref(db, 'config/info'), (s) => { 
-            const teks = s.val() || "-";
-            document.getElementById('info-teks').innerText = teks; 
-            const adminInput = document.getElementById('input-info-klinik');
-            if(adminInput) adminInput.value = teks;
-        });
-
+        onValue(ref(db, 'config/info'), (s) => { document.getElementById('info-teks').innerText = s.val() || "-"; });
+        
         let lastID = 0;
         onValue(ref(db, 'active'), (s) => {
             const d = s.val();
@@ -296,28 +128,12 @@
         });
 
         onValue(ref(db, 'queue'), (s) => {
-            const list = document.getElementById('admin-list-tunggu'); list.innerHTML = "";
-            let c = 0;
-            if(s.exists()) s.forEach((p) => { 
-                c++; const d = p.val();
-                list.innerHTML += `<div style="padding:15px; background:#222; margin-bottom:10px; border-radius:15px; display:flex; align-items:center;"><span style="background:var(--primary); padding:5px 10px; border-radius:8px; font-weight:800;">${d.nomor}</span><span style="margin-left:15px;">${d.nama}</span></div>`;
-            });
+            let c = 0; s.forEach(() => c++);
             document.getElementById('count-waiting').innerText = c;
             document.getElementById('eta-wait').innerText = c * 15;
-        });
-
-        onValue(ref(db, 'history'), (s) => {
-            const hist = document.getElementById('admin-history'); hist.innerHTML = "";
-            if(s.exists()) {
-                const arr = []; s.forEach(p => { arr.push(p.val()); });
-                arr.reverse().slice(0, 5).forEach(d => {
-                    hist.innerHTML += `<div style="padding:5px 0; border-bottom:1px solid #333;">✓ ${d.nomor} - ${d.nama}</div>`;
-                });
-            }
         });
 
         renderForm();
     </script>
 </body>
 </html>
-
