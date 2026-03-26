@@ -214,7 +214,6 @@
 
         window.simpanStatus = () => set(ref(db, 'config/status'), document.getElementById('set-status-klinik').value);
         
-        // FUNGSI BARU UNTUK SIMPAN INFO
         window.simpanInfo = () => {
             const infoBaru = document.getElementById('input-info-klinik').value;
             if(infoBaru) set(ref(db, 'config/info'), infoBaru).then(() => alert("Info Diperbarui!"));
@@ -222,6 +221,105 @@
 
         window.daftarAntrian = async () => {
             const nama = document.getElementById('nama-input').value.toUpperCase();
+            if(!nama) return alert("Isi Nama!");
+            const result = await runTransaction(ref(db, 'total'), (c) => (c || 0) + 1);
+            if(result.committed) {
+                const num = result.snapshot.val();
+                await push(ref(db, 'queue'), { nama, nomor: num, time: serverTimestamp() });
+                localStorage.setItem('myNum', num); localStorage.setItem('myName', nama);
+                renderForm();
+            }
+        };
+
+        window.panggilBerikutnya = () => {
+            get(ref(db, 'queue')).then((s) => {
+                if(!s.exists()) return alert("Habis!");
+                const data = s.val(); const key = Object.keys(data)[0]; const next = data[key];
+                next.time = Date.now();
+                push(ref(db, 'history'), next);
+                set(ref(db, 'active'), next).then(() => remove(ref(db, 'queue/' + key)));
+            });
+        };
+
+        window.resetTotal = () => { if(confirm("Reset data?")) remove(ref(db)).then(() => { localStorage.clear(); location.reload(); }); };
+
+        function renderForm() {
+            const area = document.getElementById('pendaftaran-area');
+            const myNum = localStorage.getItem('myNum');
+            const myName = localStorage.getItem('myName');
+            get(ref(db, 'config/status')).then((s) => {
+                const status = s.val() || "BUKA";
+                if(status === "TUTUP") {
+                    // INI YANG DIUBAH JADI MERAH
+                    area.innerHTML = `<div class="card" style="background:var(--danger); border:none; color:#fff;"><h2 style="margin:0;">TUTUP</h2></div>`;
+                    document.getElementById('main-body').classList.add('closed-mood');
+                } else {
+                    document.getElementById('main-body').classList.remove('closed-mood');
+                    if(myNum) {
+                        const teksWA = `Halo Bidan Lulu, saya *${myName}*.\nNo Antrean: *${myNum.toString().padStart(2, '0')}*`.replace(/\n/g, '%0a');
+                        area.innerHTML = `<div class="card pulse" style="border:3px solid var(--primary); background:#fff;">
+                            <div style="font-weight:800; color:var(--primary);">${myName}</div>
+                            <div class="nomor-waits">${myNum.toString().padStart(2, '0')}</div>
+                            <a href="https://wa.me/${nomorWA_Klinik}?text=${teksWA}" target="_blank" class="wa-btn">💬 KE WHATSAPP</a><br>
+                            ${!canSpeak ? `<button class="btn" style="background:var(--danger); color:#fff; margin-top:15px; font-size:12px; padding:10px;" onclick="window.aktifkanSuaraSaku()">🔊 AKTIFKAN SUARA</button>` : `<div style="color:var(--success); font-weight:800; font-size:12px; margin-top:10px;">✓ SUARA AKTIF</div>`}
+                        </div>`;
+                    } else {
+                        area.innerHTML = `<div class="card" style="text-align:left;"><label style="font-weight:800; font-size:11px; color:var(--primary);">NAMA PASIEN</label><input type="text" id="nama-input" placeholder="Nama..." style="width:100%; padding:20px; border-radius:20px; border:2px solid #eee; margin-top:10px; font-weight:700;"><button class="btn btn-primary" style="margin-top:15px;" onclick="window.daftarAntrian()">AMBIL ANTREAN</button></div>`;
+                    }
+                }
+            });
+        }
+
+        onValue(ref(db, 'config/status'), (s) => {
+            const st = s.val() || "BUKA";
+            const b = document.getElementById('badge-status');
+            b.innerText = (st === "TUTUP") ? "TUTUP" : "BUKA";
+            b.className = (st === "TUTUP") ? "status-tag tag-closed" : "status-tag tag-open";
+            renderForm();
+        });
+
+        onValue(ref(db, 'config/info'), (s) => { 
+            const teks = s.val() || "-";
+            document.getElementById('info-teks').innerText = teks; 
+            const adminInput = document.getElementById('input-info-klinik');
+            if(adminInput) adminInput.value = teks;
+        });
+
+        let lastID = 0;
+        onValue(ref(db, 'active'), (s) => {
+            const d = s.val();
+            if(d) {
+                document.getElementById('nomor-live').innerText = d.nomor.toString().padStart(2, '0');
+                document.getElementById('nama-live').innerText = d.nama;
+                if(d.time !== lastID) { panggilPasien(d.nomor, d.nama); lastID = d.time; }
+            }
+        });
+
+        onValue(ref(db, 'queue'), (s) => {
+            const list = document.getElementById('admin-list-tunggu'); list.innerHTML = "";
+            let c = 0;
+            if(s.exists()) s.forEach((p) => { 
+                c++; const d = p.val();
+                list.innerHTML += `<div style="padding:15px; background:#222; margin-bottom:10px; border-radius:15px; display:flex; align-items:center;"><span style="background:var(--primary); padding:5px 10px; border-radius:8px; font-weight:800;">${d.nomor}</span><span style="margin-left:15px;">${d.nama}</span></div>`;
+            });
+            document.getElementById('count-waiting').innerText = c;
+            document.getElementById('eta-wait').innerText = c * 15;
+        });
+
+        onValue(ref(db, 'history'), (s) => {
+            const hist = document.getElementById('admin-history'); hist.innerHTML = "";
+            if(s.exists()) {
+                const arr = []; s.forEach(p => { arr.push(p.val()); });
+                arr.reverse().slice(0, 5).forEach(d => {
+                    hist.innerHTML += `<div style="padding:5px 0; border-bottom:1px solid #333;">✓ ${d.nomor} - ${d.nama}</div>`;
+                });
+            }
+        });
+
+        renderForm();
+    </script>
+</body>
+</html>
             if(!nama) return alert("Isi Nama!");
             const result = await runTransaction(ref(db, 'total'), (c) => (c || 0) + 1);
             if(result.committed) {
