@@ -31,7 +31,6 @@
         .logo { font-weight: 800; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 1.5px; }
         #live-clock { font-size: 12px; font-weight: 700; color: #888; }
 
-        /* MENU TITIK TIGA BOX */
         .menu-container { position: relative; }
         #side-nav { 
             display: none; position: absolute; top: 50px; left: 0; 
@@ -85,7 +84,7 @@
         <div class="menu-container">
             <div style="font-size:32px; cursor:pointer; color:var(--primary);" onclick="toggleNav()">⋮</div>
             <div id="side-nav">
-                <div class="nav-item" onclick="window.masukAdmin()">⚙️seting </div>
+                <div class="nav-item" onclick="window.masukAdmin()">⚙️ seting </div>
                 <div class="nav-item" onclick="location.reload()">🔄 refresh </div>
             </div>
         </div>
@@ -123,23 +122,34 @@
             <h2 style="margin:0;">ADMIN VIP</h2>
             <button onclick="window.keluarAdmin()" style="background:var(--danger); border:none; color:#fff; padding:10px 20px; border-radius:15px; font-weight:800;">TUTUP</button>
         </div>
+
+        <div class="admin-card">
+            <label style="font-size: 10px; color: #888;">PAPAN INFORMASI (INFO KLINIK)</label>
+            <input type="text" id="input-info-klinik" placeholder="Ketik info baru di sini..." style="width:100%; padding:15px; border-radius:15px; background:#333; color:#fff; border:none; margin-top:10px; font-weight:700;">
+            <button class="btn" style="background:var(--secondary); color:#fff; height:45px; font-size:12px; margin-top:10px;" onclick="window.simpanInfo()">SIMPAN INFO</button>
+        </div>
+
         <div class="admin-card">
             <label style="font-size: 10px; color: #888;">OPERASIONAL</label>
             <select id="set-status-klinik" style="width:100%; padding:15px; border-radius:15px; background:#333; color:#fff; border:none; margin-top:10px; font-weight:700;">
                 <option value="BUKA">🟢 BUKA</option>
                 <option value="TUTUP">🔴 TUTUP</option>
             </select>
-            <button class="btn" style="background:var(--primary); color:#fff; height:45px; font-size:12px; margin-top:10px;" onclick="window.simpanStatus()">UPDATE</button>
+            <button class="btn" style="background:var(--primary); color:#fff; height:45px; font-size:12px; margin-top:10px;" onclick="window.simpanStatus()">UPDATE STATUS</button>
         </div>
+
         <button class="btn pulse" style="background:var(--success); color:#fff; font-size:22px; height:100px; margin-bottom:25px;" onclick="window.panggilBerikutnya()">PANGGIL 🔊</button>
+        
         <div class="admin-card">
             <label style="font-size: 10px; color: #888;">MENUNGGU</label>
             <div id="admin-list-tunggu" style="margin-top:15px;"></div>
         </div>
+        
         <div class="admin-card">
             <label style="font-size: 10px; color: #888;">RIWAYAT</label>
             <div id="admin-history" style="margin-top:15px; font-size: 12px; opacity: 0.6;"></div>
         </div>
+        
         <button onclick="window.resetTotal()" style="width:100%; background:transparent; border:none; color:#444; text-decoration:underline; padding:20px;">RESET DATABASE</button>
     </div>
 
@@ -188,7 +198,6 @@
             s.style.display = (s.style.display === 'block') ? 'none' : 'block'; 
         };
 
-        // Menutup menu jika klik di luar
         window.onclick = function(event) {
             if (!event.target.matches('[onclick="toggleNav()"]')) {
                 document.getElementById('side-nav').style.display = 'none';
@@ -204,6 +213,12 @@
         window.keluarAdmin = () => { document.getElementById('admin-screen').style.display = "none"; localStorage.removeItem('role'); };
 
         window.simpanStatus = () => set(ref(db, 'config/status'), document.getElementById('set-status-klinik').value);
+        
+        // FUNGSI BARU UNTUK SIMPAN INFO
+        window.simpanInfo = () => {
+            const infoBaru = document.getElementById('input-info-klinik').value;
+            if(infoBaru) set(ref(db, 'config/info'), infoBaru).then(() => alert("Info Diperbarui!"));
+        };
 
         window.daftarAntrian = async () => {
             const nama = document.getElementById('nama-input').value.toUpperCase();
@@ -263,7 +278,13 @@
             renderForm();
         });
 
-        onValue(ref(db, 'config/info'), (s) => { document.getElementById('info-teks').innerText = s.val() || "-"; });
+        onValue(ref(db, 'config/info'), (s) => { 
+            const teks = s.val() || "-";
+            document.getElementById('info-teks').innerText = teks; 
+            // Update juga input di admin biar sinkron
+            const adminInput = document.getElementById('input-info-klinik');
+            if(adminInput) adminInput.value = teks;
+        });
 
         let lastID = 0;
         onValue(ref(db, 'active'), (s) => {
