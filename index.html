@@ -3,159 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ANTREAN - BIDAN LULU</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&display=swap" rel="stylesheet">
+    <title>ANTREAN PASIEN - KLINIK BIDAN LULU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #00a8ff; --secondary: #9c88ff; --bg: #f0f7ff; }
-        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: #e0eafc; margin: 0; padding: 0; min-height: 100vh; }
+        :root { --primary: #00a8ff; --secondary: #9c88ff; --danger: #ff4757; --success: #2ed573; --dark: #1e272e; --glass: rgba(255, 255, 255, 0.9); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); margin: 0; padding-bottom: 50px; min-height: 100vh; color: var(--dark); }
+        body.closed-mood { background: linear-gradient(135deg, #2c3e50 0%, #000000 100%); color: #fff; }
+        header { background: var(--glass); backdrop-filter: blur(20px); padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: sticky; top:0; z-index: 1000; height: 80px; }
+        .logo { font-weight: 800; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1.5px; }
+        .container { padding: 25px 20px; max-width: 480px; margin: 0 auto; }
+        .card { background: var(--glass); backdrop-filter: blur(15px); border-radius: 40px; padding: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.1); margin-bottom: 25px; text-align: center; border: 1px solid rgba(255,255,255,0.7); }
+        .status-tag { padding: 8px 20px; border-radius: 50px; font-size: 11px; font-weight: 800; color: #fff; display: inline-block; margin-bottom: 15px; text-transform: uppercase; }
+        .tag-open { background: var(--success); }
+        .tag-closed { background: var(--danger); }
+        .nomor-live-box { background: rgba(255,255,255,0.5); border-radius: 35px; padding: 25px; margin: 15px 0; border: 1px solid #fff; }
+        .nomor-waits { font-size: 110px; font-weight: 900; background: linear-gradient(to bottom, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 0.9; }
         
-        header { background: #fff; height: 70px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .logo { font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; }
-        
-        .container { padding: 20px; max-width: 450px; margin: 0 auto; }
-
-        /* PAPAN INFO BIRU HD - Posisi Paling Atas */
-        #papan-info-box {
-            background: #0984e3;
-            color: white;
-            padding: 20px;
-            border-radius: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 25px rgba(9, 132, 227, 0.4);
-            border-left: 8px solid #74b9ff;
-            display: none; /* Muncul otomatis via JS */
-        }
-
-        .card { background: white; border-radius: 30px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); margin-bottom: 20px; text-align: center; }
-        .nomor-waits { font-size: 80px; font-weight: 900; color: var(--primary); line-height: 1; margin: 10px 0; }
-        
-        /* INPUT BOX BIRU KHAS */
+        /* Gaya Input & Select Biru HD */
         .box-input { text-align: left; }
         label { font-size: 11px; font-weight: 800; color: var(--primary); margin-left: 5px; }
-        select, input { 
-            width: 100%; padding: 18px; border-radius: 18px; border: 3px solid #74b9ff; 
+        select, .input-nama { 
+            width: 100%; padding: 18px; border-radius: 20px; border: 3px solid #74b9ff; 
             background: #e1f5fe; color: #0984e3; font-weight: 800; font-size: 15px; 
             outline: none; margin-top: 5px; margin-bottom: 15px;
         }
 
-        .btn-ambil { 
-            width: 100%; padding: 20px; border: none; border-radius: 20px; 
-            background: linear-gradient(45deg, var(--primary), var(--secondary)); 
-            color: white; font-weight: 800; cursor: pointer; font-size: 16px;
-        }
+        .btn { width: 100%; padding: 20px; border: none; border-radius: 25px; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
+        .btn-primary { background: linear-gradient(45deg, var(--primary), var(--secondary)); color: #fff; }
+        .pulse { animation: pulse-shadow 2s infinite; }
+        @keyframes pulse-shadow { 0% { box-shadow: 0 0 0 0px rgba(0, 168, 255, 0.4); } 100% { box-shadow: 0 0 0 20px rgba(0, 168, 255, 0); } }
     </style>
 </head>
-<body>
+<body id="main-body">
+    <audio id="dingdong" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+    <header><div class="logo">KLINIK BIDAN LULU</div></header>
+    <div class="container">
+        <div class="card">
+            <div id="badge-status" class="status-tag">MEMUAT...</div>
+            <div style="font-size: 11px; color: #999; font-weight: 800;">DILAYANI SEKARANG</div>
+            <div class="nomor-live-box">
+                <div class="nomor-waits" id="nomor-live">00</div>
+                <div id="nama-live" style="font-size: 24px; font-weight: 800; text-transform: uppercase;">...</div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
+                <div style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 20px;">
+                    <span id="count-waiting" style="display:block; font-weight:800; color:var(--primary);">0</span>
+                    <span style="font-size: 10px;">Menunggu</span>
+                </div>
+                <div style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 20px;">
+                    <span id="eta-wait" style="display:block; font-weight:800; color:var(--primary);">0</span>
+                    <span style="font-size: 10px;">Estimasi Menit</span>
+                </div>
+            </div>
+        </div>
 
-<header><div class="logo">KLINIK BIDAN LULU</div></header>
+        <div id="pendaftaran-area"></div>
 
-<div style="font-size: 11px; font-weight: 800; color: var(--primary); margin-bottom: 5px;"> INFO KLINIK</div>
-
-<div id="info-teks"
-
-style="font-weight:
-
-700;">Memuat...</div>
-
-</div>
-
-</div>
-
-    <div class="card">
-        <div id="jam" style="font-weight: 800; color: #888; font-size: 14px;">00:00:00</div>
-        <div style="font-size: 11px; font-weight: 800; color: #bbb; margin-top: 10px;">SEKARANG DILAYANI:</div>
-        <div class="nomor-waits" id="nomor-live">00</div>
-        <div id="nama-live" style="font-weight: 800; text-transform: uppercase; color: #333;">...</div>
+        <div class="card" style="text-align: left; background: #0984e3; color: #fff; border: none; border-left: 10px solid #74b9ff;">
+            <div style="font-size: 11px; font-weight: 800; opacity: 0.8; margin-bottom: 5px;">📢 INFO KLINIK</div>
+            <div id="info-teks" style="font-weight: 700; font-size: 16px;">Memuat...</div>
+        </div>
     </div>
 
-    <div id="pendaftaran-area"></div>
-</div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+        import { getDatabase, ref, onValue, push, get, runTransaction } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push, runTransaction } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+        const firebaseConfig = { apiKey: "AIzaSyCRGwnp5R1qLXGRW4B0LMB_ko5c8O2DNDU", authDomain: "klinik-ace97.firebaseapp.com", databaseURL: "https://klinik-ace97-default-rtdb.firebaseio.com", projectId: "klinik-ace97", storageBucket: "klinik-ace97.firebasestorage.app", messagingSenderId: "758250150131", appId: "1:758250150131:web:b00a0f4bd7e9dde4797f86" };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
 
-    const firebaseConfig = { 
-        apiKey: "AIzaSyCRGwnp5R1qLXGRW4B0LMB_ko5c8O2DNDU", 
-        authDomain: "klinik-ace97.firebaseapp.com", 
-        databaseURL: "https://klinik-ace97-default-rtdb.firebaseio.com", 
-        projectId: "klinik-ace97", 
-        storageBucket: "klinik-ace97.firebasestorage.app", 
-        messagingSenderId: "758250150131", 
-        appId: "1:758250150131:web:b00a0f4bd7e9dde4797f86" 
-    };
-    
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+        let canSpeak = false;
+        window.aktifkanSuaraSaku = () => { canSpeak = true; window.speechSynthesis.speak(new SpeechSynthesisUtterance("Suara aktif")); renderForm(); };
 
-    // Jam Digital
-    setInterval(() => { document.getElementById('jam').innerText = new Date().toLocaleTimeString('id-ID'); }, 1000);
+        const panggilPasien = (nomor, nama) => {
+            if(!canSpeak || nomor != localStorage.getItem('myNum')) return;
+            document.getElementById('dingdong').play();
+            setTimeout(() => {
+                const u = new SpeechSynthesisUtterance(`Nomor ${nomor}. ${nama}. Silakan masuk.`);
+                u.lang = 'id-ID'; window.speechSynthesis.speak(u);
+            }, 1800);
+        };
 
-    // Papan Info Admin
-    onValue(ref(db, 'config/info'), (snap) => {
-        const teks = snap.val();
-        const box = document.getElementById('papan-info-box');
-        if(teks && teks.trim() !== "") {
-            document.getElementById('teks-pengumuman').innerText = teks.toUpperCase();
-            box.style.display = "block";
-        } else {
-            box.style.display = "none";
+        window.daftarAntrian = async () => {
+            const nama = document.getElementById('nama-input').value.toUpperCase();
+            const layanan = document.getElementById('layanan-input').value;
+            if(!nama) return alert("Isi Nama!");
+            const result = await runTransaction(ref(db, 'total'), (c) => (c || 0) + 1);
+            if(result.committed) {
+                const num = result.snapshot.val();
+                await push(ref(db, 'queue'), { nama, nomor: num, layanan, id: Date.now() });
+                localStorage.setItem('myNum', num);
+                localStorage.setItem('myName', nama);
+                renderForm();
+            }
+        };
+
+        function renderForm() {
+            const area = document.getElementById('pendaftaran-area');
+            const myNum = localStorage.getItem('myNum');
+            const myName = localStorage.getItem('myName');
+            
+            get(ref(db, 'config/status')).then((s) => {
+                const status = s.val() || "BUKA";
+                if(status === "TUTUP") {
+                    area.innerHTML = `<div class="card" style="background:var(--danger); border:none; color:#fff;"><h2 style="margin:0;">KLINIK TUTUP</h2></div>`;
+                    document.getElementById('main-body').classList.add('closed-mood');
+                } else {
+                    document.getElementById('main-body').classList.remove('closed-mood');
+                    if(myNum) {
+                        area.innerHTML = `<div class="card pulse" style="border:3px solid var(--primary); background:#fff;">
+                            <div style="font-weight:800; color:var(--primary); font-size: 18px;">${myName}</div>
+                            <div class="nomor-waits">${myNum.toString().padStart(2, '0')}</div>
+                            ${!canSpeak ? `<button class="btn" style="background:var(--danger); color:#fff; margin-top:15px;" onclick="window.aktifkanSuaraSaku()">🔊 AKTIFKAN SUARA</button>` : `<div style="color:var(--success); font-weight:800; margin-top:10px;">✓ MONITORING AKTIF</div>`}
+                        </div>`;
+                    } else {
+                        area.innerHTML = `<div class="card box-input">
+                            <label>PILIH LAYANAN</label>
+                            <select id="layanan-input">
+                                <option value="🤰 ANC">🤰 ANC (CEK HAMIL)</option>
+                                <option value="💉 IMUNISASI">💉 IMUNISASI</option>
+                                <option value="💊 KB">💊 KB</option>
+                                <option value="🤒 BEROBAT">🤒 BEROBAT</option>
+                                <option value="💬 KONSULTASI">💬 KONSULTASI</option>
+                            </select>
+                            <label>NAMA PASIEN</label>
+                            <input type="text" id="nama-input" class="input-nama" placeholder="Ketik nama lengkap...">
+                            <button class="btn btn-primary" onclick="window.daftarAntrian()">AMBIL ANTREAN</button>
+                        </div>`;
+                    }
+                }
+            });
         }
-    });
 
-    // Nomor Sedang Dipanggil
-    onValue(ref(db, 'active'), (snap) => {
-        if(snap.exists()){
-            document.getElementById('nomor-live').innerText = snap.val().nomor.toString().padStart(2, '0');
-            document.getElementById('nama-live').innerText = snap.val().nama;
-        }
-    });
+        // Sinkronisasi Papan Info
+        onValue(ref(db, 'config/info'), (s) => { 
+            const teks = s.val() || "Belum ada informasi terbaru.";
+            document.getElementById('info-teks').innerText = teks.toUpperCase(); 
+        });
 
-    // Form Pendaftaran
-    function renderForm() {
-        const area = document.getElementById('pendaftaran-area');
-        const myNum = localStorage.getItem('myNum');
-        
-        if(myNum) {
-            area.innerHTML = `<div class="card" style="border: 3px solid var(--primary);">
-                <div style="font-weight: 800; color: var(--primary);">NOMOR ANTREAN SAYA:</div>
-                <div class="nomor-waits">${myNum.toString().padStart(2, '0')}</div>
-                <p style="font-size: 12px; color: #888;">Mohon tunggu panggilannya ya.</p>
-            </div>`;
-        } else {
-            area.innerHTML = `<div class="card box-input">
-                <label>PILIH LAYANAN</label>
-                <select id="layanan-pilihan">
-                    <option value="🤰 ANC">🤰 ANC (CEK HAMIL)</option>
-                    <option value="💉 IMUNISASI">💉 IMUNISASI</option>
-                    <option value="💊 KB">💊 KB</option>
-                    <option value="🤒 BEROBAT">🤒 BEROBAT</option>
-                    <option value="💬 KONSULTASI">💬 KONSULTASI</option>
-                </select>
-                <label>NAMA LENGKAP</label>
-                <input type="text" id="input-nama-pasien" placeholder="Ketik nama anda...">
-                <button class="btn-ambil" onclick="gasDaftar()">AMBIL NOMOR ANTREAN</button>
-            </div>`;
-        }
-    }
+        // Logika Reset Otomatis
+        onValue(ref(db, 'total'), (snapshot) => {
+            if (!snapshot.exists()) {
+                localStorage.removeItem('myNum');
+                localStorage.removeItem('myName');
+                renderForm();
+            }
+        });
 
-    window.gasDaftar = async () => {
-        const nama = document.getElementById('input-nama-pasien').value.toUpperCase();
-        const layanan = document.getElementById('layanan-pilihan').value;
-        if(!nama) return alert("Isi nama dulu, Ri!");
-        
-        const res = await runTransaction(ref(db, 'total'), (c) => (c || 0) + 1);
-        if(res.committed) {
-            const num = res.snapshot.val();
-            await push(ref(db, 'queue'), { nama, nomor: num, layanan, time: Date.now() });
-            localStorage.setItem('myNum', num);
+        // Status Buka/Tutup
+        onValue(ref(db, 'config/status'), (s) => {
+            const st = s.val() || "BUKA";
+            const b = document.getElementById('badge-status');
+            if(b) {
+                b.innerText = st; 
+                b.className = (st === "TUTUP") ? "status-tag tag-closed" : "status-tag tag-open";
+            }
             renderForm();
-        }
-    };
+        });
+        
+        // Pasien Aktif & Suara
+        let lastID = 0;
+        onValue(ref(db, 'active'), (s) => {
+            const d = s.val();
+            if(d) {
+                document.getElementById('nomor-live').innerText = d.nomor.toString().padStart(2, '0');
+                document.getElementById('nama-live').innerText = d.nama;
+                if(d.time !== lastID) { panggilPasien(d.nomor, d.nama); lastID = d.time; }
+            }
+        });
 
-    renderForm();
-</script>
+        // Jumlah Antrean
+        onValue(ref(db, 'queue'), (s) => {
+            let c = 0; s.forEach(() => c++);
+            document.getElementById('count-waiting').innerText = c;
+            document.getElementById('eta-wait').innerText = c * 15;
+        });
+
+        renderForm();
+    </script>
 </body>
 </html>
-
