@@ -10,7 +10,7 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%); margin: 0; padding-bottom: 50px; min-height: 100vh; color: var(--dark); }
         body.closed-mood { background: linear-gradient(135deg, #2c3e50 0%, #000000 100%); color: #fff; }
-        header { background: var(--glass); backdrop-filter: blur(20px); padding: 0 25px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: sticky; top:0; z-index: 1000; height: 80px; }
+        header { background: var(--glass); backdrop-filter: blur(20px); padding: 0; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.05); position: sticky; top:0; z-index: 1000; height: 80px; }
         .logo { font-weight: 800; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1.5px; }
         .container { padding: 25px 20px; max-width: 480px; margin: 0 auto; }
         .card { background: var(--glass); backdrop-filter: blur(15px); border-radius: 40px; padding: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.1); margin-bottom: 25px; text-align: center; border: 1px solid rgba(255,255,255,0.7); }
@@ -24,7 +24,6 @@
         .stat-val { display: block; font-weight: 800; color: var(--primary); font-size: 18px; }
         .btn { width: 100%; padding: 20px; border: none; border-radius: 25px; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
         .btn-primary { background: linear-gradient(45deg, var(--primary), var(--secondary)); color: #fff; }
-        .wa-btn { background: #25d366; color: #fff; text-decoration: none; padding: 15px; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; font-weight: 800; margin-top: 15px; width: 100%; }
         .pulse { animation: pulse-shadow 2s infinite; }
         @keyframes pulse-shadow { 0% { box-shadow: 0 0 0 0px rgba(0, 168, 255, 0.4); } 100% { box-shadow: 0 0 0 20px rgba(0, 168, 255, 0); } }
     </style>
@@ -78,8 +77,9 @@
             const result = await runTransaction(ref(db, 'total'), (c) => (c || 0) + 1);
             if(result.committed) {
                 const num = result.snapshot.val();
-                await push(ref(db, 'queue'), { nama, nomor: num, time: serverTimestamp() });
-                localStorage.setItem('myNum', num); localStorage.setItem('myName', nama);
+                await push(ref(db, 'queue'), { nama, nomor: num, id: Date.now() });
+                localStorage.setItem('myNum', num);
+                localStorage.setItem('myName', nama);
                 renderForm();
             }
         };
@@ -88,6 +88,7 @@
             const area = document.getElementById('pendaftaran-area');
             const myNum = localStorage.getItem('myNum');
             const myName = localStorage.getItem('myName');
+            
             get(ref(db, 'config/status')).then((s) => {
                 const status = s.val() || "BUKA";
                 if(status === "TUTUP") {
@@ -108,10 +109,23 @@
             });
         }
 
+        // LOGIKA AUTO-RESET DI SISI PASIEN
+        onValue(ref(db, 'total'), (snapshot) => {
+            // Jika data total di firebase kosong/null, berarti admin baru saja reset
+            if (!snapshot.exists()) {
+                localStorage.removeItem('myNum');
+                localStorage.removeItem('myName');
+                renderForm();
+            }
+        });
+
         onValue(ref(db, 'config/status'), (s) => {
             const st = s.val() || "BUKA";
             const b = document.getElementById('badge-status');
-            b.innerText = st; b.className = (st === "TUTUP") ? "status-tag tag-closed" : "status-tag tag-open";
+            if(b) {
+                b.innerText = st; 
+                b.className = (st === "TUTUP") ? "status-tag tag-closed" : "status-tag tag-open";
+            }
             renderForm();
         });
 
@@ -124,6 +138,9 @@
                 document.getElementById('nomor-live').innerText = d.nomor.toString().padStart(2, '0');
                 document.getElementById('nama-live').innerText = d.nama;
                 if(d.time !== lastID) { panggilPasien(d.nomor, d.nama); lastID = d.time; }
+            } else {
+                document.getElementById('nomor-live').innerText = "00";
+                document.getElementById('nama-live').innerText = "...";
             }
         });
 
@@ -137,3 +154,4 @@
     </script>
 </body>
 </html>
+
