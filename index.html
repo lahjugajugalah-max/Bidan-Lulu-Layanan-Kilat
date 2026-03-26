@@ -14,20 +14,20 @@
         .logo { font-weight: 800; background: linear-gradient(45deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1.5px; }
         .container { padding: 25px 20px; max-width: 480px; margin: 0 auto; }
         .card { background: var(--glass); backdrop-filter: blur(15px); border-radius: 40px; padding: 30px; box-shadow: 0 25px 50px rgba(0,0,0,0.1); margin-bottom: 25px; text-align: center; border: 1px solid rgba(255,255,255,0.7); }
+        
+        /* JAM CANTIK GLOW */
+        .jam-digital { font-weight: 800; color: var(--primary); font-size: 16px; background: #fff; display: inline-block; padding: 8px 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0, 168, 255, 0.2); margin-bottom: 15px; letter-spacing: 1px; }
+
         .status-tag { padding: 8px 20px; border-radius: 50px; font-size: 11px; font-weight: 800; color: #fff; display: inline-block; margin-bottom: 15px; text-transform: uppercase; }
         .tag-open { background: var(--success); }
         .tag-closed { background: var(--danger); }
         .nomor-live-box { background: rgba(255,255,255,0.5); border-radius: 35px; padding: 25px; margin: 15px 0; border: 1px solid #fff; }
         .nomor-waits { font-size: 110px; font-weight: 900; background: linear-gradient(to bottom, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 0.9; }
         
-        /* Gaya Input & Select Biru HD */
+        /* INPUT BOX */
         .box-input { text-align: left; }
         label { font-size: 11px; font-weight: 800; color: var(--primary); margin-left: 5px; }
-        select, .input-nama { 
-            width: 100%; padding: 18px; border-radius: 20px; border: 3px solid #74b9ff; 
-            background: #e1f5fe; color: #0984e3; font-weight: 800; font-size: 15px; 
-            outline: none; margin-top: 5px; margin-bottom: 15px;
-        }
+        select, .input-nama { width: 100%; padding: 18px; border-radius: 20px; border: 3px solid #74b9ff; background: #e1f5fe; color: #0984e3; font-weight: 800; font-size: 15px; outline: none; margin-top: 5px; margin-bottom: 15px; }
 
         .btn { width: 100%; padding: 20px; border: none; border-radius: 25px; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; }
         .btn-primary { background: linear-gradient(45deg, var(--primary), var(--secondary)); color: #fff; }
@@ -39,7 +39,10 @@
     <audio id="dingdong" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
     <header><div class="logo">KLINIK BIDAN LULU</div></header>
     <div class="container">
+        
         <div class="card">
+            <div class="jam-digital" id="clock-display">00:00:00</div><br>
+            
             <div id="badge-status" class="status-tag">MEMUAT...</div>
             <div style="font-size: 11px; color: #999; font-weight: 800;">DILAYANI SEKARANG</div>
             <div class="nomor-live-box">
@@ -49,7 +52,7 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px;">
                 <div style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 20px;">
                     <span id="count-waiting" style="display:block; font-weight:800; color:var(--primary);">0</span>
-                    <span style="font-size: 10px;">Menunggu</span>
+                    <span style="font-size: 10px;">Antrean</span>
                 </div>
                 <div style="background: rgba(0,0,0,0.03); padding: 15px; border-radius: 20px;">
                     <span id="eta-wait" style="display:block; font-weight:800; color:var(--primary);">0</span>
@@ -60,9 +63,9 @@
 
         <div id="pendaftaran-area"></div>
 
-        <div class="card" style="text-align: left; background: #0984e3; color: #fff; border: none; border-left: 10px solid #74b9ff;">
-            <div style="font-size: 11px; font-weight: 800; opacity: 0.8; margin-bottom: 5px;">📢 INFO KLINIK</div>
-            <div id="info-teks" style="font-weight: 700; font-size: 16px;">Memuat...</div>
+        <div class="card" style="text-align: left; background: #0984e3; color: #fff; border: none; border-left: 12px solid #74b9ff; padding: 25px;">
+            <div style="font-size: 16px; font-weight: 900; letter-spacing: 1px; margin-bottom: 8px; text-decoration: underline;">📢 INFO KLINIK</div>
+            <div id="info-teks" style="font-weight: 700; font-size: 18px; line-height: 1.4;">Memuat info...</div>
         </div>
     </div>
 
@@ -74,8 +77,14 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // UPDATE JAM SETIAP DETIK
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock-display').innerText = now.toLocaleTimeString('id-ID', { hour12: false });
+        }, 1000);
+
         let canSpeak = false;
-        window.aktifkanSuaraSaku = () => { canSpeak = true; window.speechSynthesis.speak(new SpeechSynthesisUtterance("Suara aktif")); renderForm(); };
+        window.aktifkanSuaraSaku = () => { canSpeak = true; window.speechSynthesis.speak(new SpeechSynthesisUtterance("Monitoring aktif")); renderForm(); };
 
         const panggilPasien = (nomor, nama) => {
             if(!canSpeak || nomor != localStorage.getItem('myNum')) return;
@@ -110,6 +119,76 @@
                 if(status === "TUTUP") {
                     area.innerHTML = `<div class="card" style="background:var(--danger); border:none; color:#fff;"><h2 style="margin:0;">KLINIK TUTUP</h2></div>`;
                     document.getElementById('main-body').classList.add('closed-mood');
+                } else {
+                    document.getElementById('main-body').classList.remove('closed-mood');
+                    if(myNum) {
+                        area.innerHTML = `<div class="card pulse" style="border:3px solid var(--primary); background:#fff;">
+                            <div style="font-weight:800; color:var(--primary); font-size:18px;">${myName}</div>
+                            <div class="nomor-waits">${myNum.toString().padStart(2, '0')}</div>
+                            ${!canSpeak ? `<button class="btn" style="background:var(--danger); color:#fff; margin-top:15px;" onclick="window.aktifkanSuaraSaku()">🔊 AKTIFKAN SUARA</button>` : `<div style="color:var(--success); font-weight:800; margin-top:10px;">✓ MONITORING AKTIF</div>`}
+                        </div>`;
+                    } else {
+                        area.innerHTML = `<div class="card box-input">
+                            <label>PILIH LAYANAN</label>
+                            <select id="layanan-input">
+                                <option value="🤰 ANC">🤰 ANC (CEK HAMIL)</option>
+                                <option value="💉 IMUNISASI">💉 IMUNISASI</option>
+                                <option value="💊 KB">💊 KB</option>
+                                <option value="🤒 BEROBAT">🤒 BEROBAT</option>
+                                <option value="💬 KONSULTASI">💬 KONSULTASI</option>
+                            </select>
+                            <label>NAMA LENGKAP</label>
+                            <input type="text" id="nama-input" class="input-nama" placeholder="Ketik nama lengkap...">
+                            <button class="btn btn-primary" onclick="window.daftarAntrian()">AMBIL ANTREAN</button>
+                        </div>`;
+                    }
+                }
+            });
+        }
+
+        onValue(ref(db, 'config/info'), (s) => { 
+            const teks = s.val() || "Tidak ada pengumuman hari ini.";
+            document.getElementById('info-teks').innerText = teks.toUpperCase(); 
+        });
+
+        onValue(ref(db, 'total'), (snapshot) => {
+            if (!snapshot.exists()) {
+                localStorage.removeItem('myNum');
+                localStorage.removeItem('myName');
+                renderForm();
+            }
+        });
+
+        onValue(ref(db, 'config/status'), (s) => {
+            const st = s.val() || "BUKA";
+            const b = document.getElementById('badge-status');
+            if(b) {
+                b.innerText = st; 
+                b.className = (st === "TUTUP") ? "status-tag tag-closed" : "status-tag tag-open";
+            }
+            renderForm();
+        });
+        
+        let lastID = 0;
+        onValue(ref(db, 'active'), (s) => {
+            const d = s.val();
+            if(d) {
+                document.getElementById('nomor-live').innerText = d.nomor.toString().padStart(2, '0');
+                document.getElementById('nama-live').innerText = d.nama;
+                if(d.time !== lastID) { panggilPasien(d.nomor, d.nama); lastID = d.time; }
+            }
+        });
+
+        onValue(ref(db, 'queue'), (s) => {
+            let c = 0; s.forEach(() => c++);
+            document.getElementById('count-waiting').innerText = c;
+            document.getElementById('eta-wait').innerText = c * 15;
+        });
+
+        renderForm();
+    </script>
+</body>
+</html>
                 } else {
                     document.getElementById('main-body').classList.remove('closed-mood');
                     if(myNum) {
